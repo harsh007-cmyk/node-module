@@ -5,6 +5,7 @@ const userSchema=require("./UserSchema")
 const mongoose=require("mongoose");
 const {cleanupAndValidate}=require('./utils/AuthUtils');
 app.set("view engine","ejs");
+const validator=require("validator");
 const session = require("express-session");
 const mongoDBSession = require("connect-mongodb-session")(session);
 
@@ -65,7 +66,7 @@ app.get("/register",(req,res)=>{
 })
 app.post("/login",async (req,res)=>{
     const {loginId,password}=req.body;
-    console.log(loginId,password,"psslgnin");
+    
     console.log(typeof loginId);
     console.log(typeof password);
     if(typeof loginId!='string'||typeof password!='string'|| !loginId||!password)
@@ -75,13 +76,16 @@ app.post("/login",async (req,res)=>{
         message:"Invalid Data"
       })
     }
-
-    let userDb
+   
+    let userDb;
     try{
+      
       if(validator.isEmail(loginId)){
+        console.log(loginId);
         userDb=await userSchema.findOne({email:loginId});
       }else{
         userDb=await userSchema.findOne({username:loginId});
+        console.log(loginId);userSchema.findOne({username:loginId});
       }
       console.log(userDb);
       if(!userDb){
@@ -92,6 +96,7 @@ app.post("/login",async (req,res)=>{
         })
       }
 
+      console.log(loginId,password,"psslgnin");
       const isMatch=await bcrypt.compare(password,userDb.password);
       console.log("ismatch",isMatch);
       if(!isMatch){
@@ -112,6 +117,7 @@ app.post("/login",async (req,res)=>{
       console.log(req.session.user);
       res.redirect("/profile");    
     }catch(err){
+      console.log(err);
       return res.send({
         status:400,
         message:"Internal server error, Please login again."
