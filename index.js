@@ -66,7 +66,9 @@ app.get("/register",(req,res)=>{
 app.post("/login",async (req,res)=>{
     const {loginId,password}=req.body;
     console.log(loginId,password,"psslgnin");
-    if(typeof loginId!='String'||typeof password!='String'|| !loginId||!password)
+    console.log(typeof loginId);
+    console.log(typeof password);
+    if(typeof loginId!='string'||typeof password!='string'|| !loginId||!password)
     {
       return res.send({
         status:400,
@@ -91,7 +93,7 @@ app.post("/login",async (req,res)=>{
       }
 
       const isMatch=await bcrypt.compare(password,userDb.password);
-
+      console.log("ismatch",isMatch);
       if(!isMatch){
         return res.send({
           status:400,
@@ -107,11 +109,12 @@ app.post("/login",async (req,res)=>{
         email:userDb.email,
         userId:userDb._id,
       }
-      res.redirect("/dashboard");    
+      console.log(req.session.user);
+      res.redirect("/profile");    
     }catch(err){
       return res.send({
         status:400,
-        message:"Internal server error, Please login again"
+        message:"Internal server error, Please login again."
       })
     }
 
@@ -129,7 +132,7 @@ app.post("/register",async(req,res)=>{
    }
 
    const hashedPassword=await bcrypt.hash(password,7);
-   console.log(hashedPassword,"hashpass");
+  
 
   
 
@@ -177,7 +180,7 @@ app.post("/register",async(req,res)=>{
   
 })
 
-app.get("/home", isAuth, (req, res) => {
+app.get("/profile", isAuth, (req, res) => {
   if (req.session.isAuth) {
     return res.send({
       message: "This is your home page",
